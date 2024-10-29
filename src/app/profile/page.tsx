@@ -36,10 +36,13 @@ const CreateProfile = () => {
     }
 
 
-
-
     const handleSubmit = async () => {
-
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData) {
+            console.log("Error fetching user or user not logged in:", userError);
+            return;
+        }
+        const userId = userData.user?.id;
         const { data, error } = await supabase.from('users').insert({
             name: name,
             bio: bio,
@@ -47,7 +50,8 @@ const CreateProfile = () => {
             gender: gender,
             relationship: relationship,
             religion: religion,
-            images: imageArray
+            images: imageArray,
+            user_Id: userId
         })
 
         if (error) {
@@ -55,15 +59,32 @@ const CreateProfile = () => {
         }
         if (data) {
             console.log(data);
+            alert('Profile created successfully')
         }
-        alert('Profile created successfully')
         setTimeout(() => {
             redirect('/homepage');
         }, 100);
     }
 
 
+    const checkProfile = async () => {
+        const user = await supabase.auth.getUser();
+        if (user) {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('', user.data.user?.id)
+                .single();
 
+
+            if (data) {
+                alert('Profile already created')
+                console.log(data)
+            }
+        }
+
+
+    }
 
 
     return (
@@ -112,10 +133,10 @@ const CreateProfile = () => {
                             <label htmlFor="bio" className="block mb-1 text-neutral-700">Bio</label>
                             <textarea value={bio} onChange={(e) => setBio(e.target.value)} id="bio" name="bio" rows={3} className="w-full px-3 py-2 border rounded-md"></textarea>
                         </div>
-                        <div>
+                        {/* <div>
                             <label htmlFor="dob" className="block mb-1 text-neutral-700">Date of Birth</label>
                             <input value={dob} onChange={(e) => setDob(e.target.value)} type="date" id="dob" name="dob" className="w-full px-3 py-2 border rounded-md" />
-                        </div>
+                        </div> */}
 
                     </div>
 
