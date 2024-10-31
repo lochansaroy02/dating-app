@@ -35,7 +35,7 @@ const Signup = () => {
     }
 
 
-
+    const [isSignedIn, setIsSignedIn] = useState(false)
     const verifyCode = async () => {
 
         const {
@@ -48,7 +48,6 @@ const Signup = () => {
         })
 
         if (session) {
-            console.log(session);
             alert('verified');
             redirect('/profile');
 
@@ -63,7 +62,7 @@ const Signup = () => {
 
     return (
 
- 
+
         <div className='flex flex-col items-center mt-12 gap-4  '>
             <div className='flex flex-col items-start'>
                 <label htmlFor="">Phone Number</label>

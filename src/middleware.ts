@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
         session
     } } = await supabase.auth.getSession();
 
-    console.log(session)
+
 
     return res;
 }

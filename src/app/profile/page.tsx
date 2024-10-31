@@ -2,7 +2,7 @@
 
 import { CldUploadWidget } from 'next-cloudinary';
 import { redirect } from 'next/navigation';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 const CreateProfile = () => {
@@ -13,7 +13,9 @@ const CreateProfile = () => {
     const [relationship, setRelationship] = useState("");
     const [religion, setReligion] = useState("");
     const [imageArray, setImageArray] = useState<string[]>([])
-    console.log(imageArray)
+    const [isAdmin, setIsAdmin] = useState(false)
+
+    const [isCreated, setIsCreated] = useState(false)
 
     const CLOUDINARY_URL = 'https://res.cloudinary.com/dcuiltdc8/image/upload/v1729951508/'
     const [publicId, setPublicId] = useState('')
@@ -30,7 +32,6 @@ const CreateProfile = () => {
 
         setImageArray(prevArray => {
             const updatedArray = [...prevArray, thisPublicId];
-            console.log("Updated image array:", updatedArray); // Log the updated array
             return updatedArray;
         });
     }
@@ -39,7 +40,6 @@ const CreateProfile = () => {
     const handleSubmit = async () => {
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError || !userData) {
-            console.log("Error fetching user or user not logged in:", userError);
             return;
         }
         const userId = userData.user?.id;
@@ -51,40 +51,46 @@ const CreateProfile = () => {
             relationship: relationship,
             religion: religion,
             images: imageArray,
-            user_Id: userId
+            user_Id: userId,
+            isAdmin: isAdmin
         })
 
         if (error) {
             console.log(error)
         }
         if (data) {
-            console.log(data);
-            alert('Profile created successfully')
         }
+        alert('Profile created successfully')
         setTimeout(() => {
-            redirect('/homepage');
+            redirect('/feed');
         }, 100);
     }
+
+    const handleChange = () => {
+        console.log(isAdmin)
+        setIsAdmin(!isAdmin)
+    }
+
 
 
     const checkProfile = async () => {
         const user = await supabase.auth.getUser();
-        if (user) {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('', user.data.user?.id)
-                .single();
+
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', 61)
+            .single();
+        console.log(data)
 
 
-            if (data) {
-                alert('Profile already created')
-                console.log(data)
-            }
-        }
+
 
 
     }
+    useEffect(() => {
+        checkProfile()
+    }, [])
 
 
     return (
@@ -106,7 +112,6 @@ const CreateProfile = () => {
                         <img className="w-[300px] h-[300px] object-cover rounded-xl" src={CLOUDINARY_URL + images[2].url} alt={images[2].name} />
                         <img className="w-[300px] h-[300px] object-cover rounded-xl" src={CLOUDINARY_URL + images[3].url} alt={images[3].name} />
                         <div className="w-[200px] h-[80px] row-span-2 bg-transparent">
-
                         </div>
                     </div>
 
@@ -171,9 +176,14 @@ const CreateProfile = () => {
                                 <option value="buddhist">Buddhist</option>
                             </select>
                         </div>
+                        <div className=" flex items-center">
+                            <label  htmlFor="isAdmin" className=" text-sm text-neutral-700"> Admin</label>
+                            <input onChange={handleChange} type="checkbox" checked={isAdmin} className="w-full px-3 py-2 border rounded-md" />
+                        </div>
                         <div className='bg-white text-black mt-4 p-2 rounded-lg   h-10 '>
                             <CldUploadWidget uploadPreset="addUsers" onSuccess={({ event, info }) => {
                                 if (event === "success") {
+                                    // @ts-expect-error: Let's ignore a compile error like this unreachable code
                                     insertImage(info?.public_id)
                                 }
                             }} onError={(error) => {

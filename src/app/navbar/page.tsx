@@ -9,7 +9,6 @@ const Navbar = () => {
 
 
     const [signInState, setSignInState] = useState(false)
-    console.log(signInState)
 
 
     const checkSession = async () => {
