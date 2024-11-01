@@ -1,15 +1,23 @@
 'use client'
 
-import { Link, LogIn, LogOut, User } from 'lucide-react'
+import { useProfileStore } from '@/utils/Store'
+import { LogIn, LogOut } from 'lucide-react'
 import { redirect } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { CLOUDINARY_URL } from '../lib/constants'
 import { supabase } from '../lib/supabase'
 
 const Navbar = () => {
 
-
+    const { profileImage, fetchProfileImage } = useProfileStore();
     const [signInState, setSignInState] = useState(false)
 
+
+
+
+    useEffect(() => {
+        fetchProfileImage();
+    }, [])
 
     const checkSession = async () => {
         const { data, error } = await supabase.auth.getSession()
@@ -24,12 +32,10 @@ const Navbar = () => {
     }
 
     const signOut = async () => {
-        setSignInState(!signInState)
-
-
-
-
+        setSignInState(!signInState);
     }
+
+
 
     return (
         < div className='flex justify-end items-center gap-4 p-4 z-50 w-fit fixed top-0 right-0'>
@@ -38,9 +44,9 @@ const Navbar = () => {
                     Feed
                 </button>
             </div>
-            <div className='cursor-pointer bg-neutral-800 text-neutral-200 p-2 rounded-full justify-center items-center'>
+            <div className='cursor-pointer bg-neutral-800 text-neutral-200   rounded-full justify-center items-center'>
                 <button onClick={() => redirect('/my-profile')} className='flex items-center gap-2'>
-                    <User className='w-6 h-6 ' />
+                    <img src={CLOUDINARY_URL + profileImage} alt="" className='w-10 h-10 rounded-full' />
                 </button>
             </div>
             <button onClick={checkSession} className='flex items-center gap-2 px-3 py-2  text-sm bg-neutral-800  rounded-md text-neutral-100' >

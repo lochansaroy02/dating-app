@@ -10,11 +10,10 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 import { CLOUDINARY_URL } from "../lib/constants";
+import { supabase } from "../lib/supabase";
 
 const HomePage = () => {
-  
     const [data, setData] = useState<any[]>([]);
     const [like, setLike] = useState(null);
 
@@ -83,7 +82,6 @@ const HomePage = () => {
         else {
             console.log('User liked successfully:', updatedThatUserData);
         }
-
     };
 
     useEffect(() => {

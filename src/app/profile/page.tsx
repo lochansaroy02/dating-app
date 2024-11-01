@@ -1,5 +1,6 @@
 'use client'
 
+import { Trash2 } from 'lucide-react';
 import { CldUploadWidget } from 'next-cloudinary';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -13,13 +14,12 @@ const CreateProfile = () => {
     const [relationship, setRelationship] = useState("");
     const [religion, setReligion] = useState("");
     const [imageArray, setImageArray] = useState<string[]>([])
-    const [isAdmin, setIsAdmin] = useState(false)
-
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [profileImage, setProfileImage] = useState<string | null>(null);
     const [isCreated, setIsCreated] = useState(false)
 
-    const CLOUDINARY_URL = 'https://res.cloudinary.com/dcuiltdc8/image/upload/v1729951508/'
-    const [publicId, setPublicId] = useState('')
 
+    const CLOUDINARY_URL = 'https://res.cloudinary.com/dcuiltdc8/image/upload/v1729951508/'
     const images = [
         { name: 'hands', url: 'dating/homepage/dhckldg24aatuawrciv8m' },
         { name: 'marrige', url: 'dating/homepage/qfc53tngkvngfyjabbnm.jpg' },
@@ -27,44 +27,18 @@ const CreateProfile = () => {
         { name: 'umbrella', url: 'dating/homepage/invrdwckszzerw78zvqm.jpg' }
     ]
 
+
     const insertImage = async (thisPublicId: string) => {
-        setPublicId(thisPublicId)
+
 
         setImageArray(prevArray => {
             const updatedArray = [...prevArray, thisPublicId];
+            console.log(updatedArray)
             return updatedArray;
         });
     }
 
 
-    const handleSubmit = async () => {
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError || !userData) {
-            return;
-        }
-        const userId = userData.user?.id;
-        const { data, error } = await supabase.from('users').insert({
-            name: name,
-            bio: bio,
-            dob: dob,
-            gender: gender,
-            relationship: relationship,
-            religion: religion,
-            images: imageArray,
-            user_Id: userId,
-            isAdmin: isAdmin
-        })
-
-        if (error) {
-            console.log(error)
-        }
-        if (data) {
-        }
-        alert('Profile created successfully')
-        setTimeout(() => {
-            redirect('/feed');
-        }, 100);
-    }
 
     const handleChange = () => {
         console.log(isAdmin)
@@ -81,20 +55,68 @@ const CreateProfile = () => {
             .select('*')
             .eq('id', 61)
             .single();
-        console.log(data)
+    }
 
+    const handleSubmit = async () => {
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData) {
+            return;
+        }
+        const userId = userData.user?.id;
+        const { data, error } = await supabase.from('users').insert({
+            name: name,
+            bio: bio,
+            dob: dob,
+            gender: gender,
+            relationship: relationship,
+            religion: religion,
+            images: imageArray,
+            user_Id: userId,
+            isAdmin: isAdmin,
+            profileImage: profileImage
+        });
+        if (error) {
+            console.log(error)
+        }
+        if (data) {
+
+        }
+
+        alert('Profile created successfully');
+        setTimeout(() => {
+            redirect('/feed');
+        }, 100);
 
 
 
 
     }
+
+    const handleDeleteImage = async (image: string) => {
+
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData) {
+            return;
+        }
+        const userId = userData.user?.id;
+        const { data, error } = await supabase
+            .from('users')
+            .update({ images: imageArray.filter((img: string) => img !== image) })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error deleting image:', error);
+        } else {
+            checkProfile();
+        }
+    };
     useEffect(() => {
         checkProfile()
     }, [])
 
 
     return (
-        <div className='flex    justify-start gap-8 overflow-x-'>
+        <div className='flex  justify-start gap-8 overflow-x-'>
 
             <div className=" w-[50%] p-8 ">
 
@@ -177,40 +199,74 @@ const CreateProfile = () => {
                             </select>
                         </div>
                         <div className=" flex items-center">
-                            <label  htmlFor="isAdmin" className=" text-sm text-neutral-700"> Admin</label>
+                            <label htmlFor="isAdmin" className=" text-sm text-neutral-700"> Admin</label>
                             <input onChange={handleChange} type="checkbox" checked={isAdmin} className="w-full px-3 py-2 border rounded-md" />
                         </div>
-                        <div className='bg-white text-black mt-4 p-2 rounded-lg   h-10 '>
-                            <CldUploadWidget uploadPreset="addUsers" onSuccess={({ event, info }) => {
-                                if (event === "success") {
-                                    // @ts-expect-error: Let's ignore a compile error like this unreachable code
-                                    insertImage(info?.public_id)
-                                }
-                            }} onError={(error) => {
-                                console.log(error)
-                            }}
 
-                            >
-                                {({ open }) => {
-                                    return (
-                                        <button onClick={() => open()}>
-                                            Upload  Images
-                                        </button>
-                                    );
-                                }}
-                            </CldUploadWidget>
-                        </div>
 
                     </div>
 
 
 
                 </div>
-                <button onClick={async () => {
-                    await handleSubmit()
-                }} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                    Create Profile
-                </button>
+
+
+                <div className='flex flex-col-reverse gap-4'>
+                    <div className='bg-white text-black mt-4 p-2 rounded-lg    h-10 '>
+                        <div className='flex  gap-4 bg-green-300'>
+                            {
+                                imageArray?.map((image: any, index: number) => (
+                                    <div key={index} className="relative group ">
+                                        <div className="absolute top-0 right-0">
+                                            <Trash2 className="cursor-pointer" onClick={() => handleDeleteImage(image)} />
+                                        </div>
+                                        <img
+                                            src={CLOUDINARY_URL + image}
+                                            alt="profile"
+                                            className="w-40 h-40 rounded-md"
+                                        />
+                                        <button
+                                            className="bg-neutral-800 text-sm absolute bottom-1 left-1 z-10 text-neutral-200 p-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => {
+                                                setProfileImage(image)
+                                            }}
+                                        >
+                                            Set as profile picture
+                                        </button>
+                                    </div>
+
+                                ))
+                            }
+                        </div>
+                        <CldUploadWidget uploadPreset="addUsers" onSuccess={({ event, info }) => {
+                            if (event === "success") {
+                                // @ts-expect-error: Let's ignore a compile error like this unreachable code
+                                insertImage(info?.public_id)
+                            }
+                        }} onError={(error) => {
+                            console.log(error)
+                        }}
+
+                        >
+                            {({ open }) => {
+                                return (
+                                    <button onClick={() => open()}>
+                                        Upload  Images
+                                    </button>
+                                );
+                            }}
+                        </CldUploadWidget>
+                    </div>
+
+                    <div>
+
+                        <button onClick={async () => {
+                            await handleSubmit()
+                        }} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                            Create Profile
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </div>
