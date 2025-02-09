@@ -10,9 +10,7 @@ interface ProfileStore {
 
 export const useProfileStore = create<ProfileStore>((set) => ({
     profileImage: null,
-
     setProfileImage: (image) => set({ profileImage: image }),
-
     fetchProfileImage: async () => {
         const { data, error } = await supabase.auth.getUser();
         if (data?.user) {

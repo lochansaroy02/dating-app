@@ -16,6 +16,8 @@ import { supabase } from "../lib/supabase";
 const HomePage = () => {
     const [data, setData] = useState<any[]>([]);
     const [like, setLike] = useState(null);
+    const [index, setIndex] = useState(0);
+    // const [thisData, setThisData] = useState<any>(data[index]);
 
     async function fetchData() {
         const { data, error } = await supabase.from('users').select('*');
@@ -25,6 +27,7 @@ const HomePage = () => {
             return;
         }
         if (data) {
+            console.log(data)
             setData(data);
         }
     }
@@ -59,6 +62,7 @@ const HomePage = () => {
 
         // confirm before the user is liked by user ( pass a boolean variable to the function)
         const { data: thatUserData, error: thatUserError } = await supabase.from('users').select('*').eq('id', user.id);
+        console.log(thatUserData)
         if (thatUserError) {
             console.error('Error fetching that user data:', thatUserError);
         }
@@ -91,9 +95,9 @@ const HomePage = () => {
     return (
         <div className="flex flex-col items-center justify-center mt-12">
             <div className="grid grid-cols-2 gap-32">
-                {data && data.map((user) => (
+                {data && data.map((user, index) => (
                     <div key={user.id}>
-                        <div className="bg-neutral-200 flex flex-col border rounded-lg border-neutral-400">
+                        <div className=" flex flex-col border rounded-lg border-neutral-400">
                             <div className="flex flex-row justify-center px-12 gap-4">
                                 <Carousel className="w-full max-w-xs">
                                     <CarouselContent>

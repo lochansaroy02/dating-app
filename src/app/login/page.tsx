@@ -1,6 +1,10 @@
 
 
 export default function Login() {
+
+
+    
+
     return (
         <form className="flex items-center justify-center" action="/auth/signup" method="post">
             <div className="flex flex-col gap-2">

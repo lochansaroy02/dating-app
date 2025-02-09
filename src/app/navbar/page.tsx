@@ -1,11 +1,13 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { useProfileStore } from '@/utils/Store'
 import { LogIn, LogOut } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { CLOUDINARY_URL } from '../lib/constants'
 import { supabase } from '../lib/supabase'
+import { DarkToggle } from './DarkToggle'
 
 const Navbar = () => {
 
@@ -33,6 +35,7 @@ const Navbar = () => {
 
     const signOut = async () => {
         setSignInState(!signInState);
+        redirect('/signup')
     }
 
 
@@ -40,16 +43,21 @@ const Navbar = () => {
     return (
         < div className='flex justify-end items-center gap-4 p-4 z-50 w-fit fixed top-0 right-0'>
             <div>
-                <button onClick={() => redirect('/feed')} className='bg-neutral-800 text-neutral-200 p-2 rounded-md'>
-                    Feed
-                </button>
+                <Button onClick={() => redirect('/profile')} className=' p-2 rounded-md'>
+                    Add Profile
+                </Button>
             </div>
-            <div className='cursor-pointer bg-neutral-800 text-neutral-200   rounded-full justify-center items-center'>
+            <div>
+                <Button onClick={() => redirect('/feed')} className=' p-2 rounded-md'>
+                    Feed
+                </Button>
+            </div>
+            {/* {<div className='cursor-pointer bg-neutral-800 text-neutral-200   rounded-full justify-center items-center'>
                 <button onClick={() => redirect('/my-profile')} className='flex items-center gap-2'>
                     <img src={CLOUDINARY_URL + profileImage} alt="" className='w-10 h-10 rounded-full' />
                 </button>
-            </div>
-            <button onClick={checkSession} className='flex items-center gap-2 px-3 py-2  text-sm bg-neutral-800  rounded-md text-neutral-100' >
+            </div>} */}
+            <Button onClick={checkSession} className='flex items-center gap-2 px-3 py-2  text-sm   rounded-md' >
                 {!signInState ? <div className='flex items-center gap-2'>
                     <span>Logout</span>
                     <LogOut className='w-4 h-4' />
@@ -57,8 +65,8 @@ const Navbar = () => {
                     <span>Login</span>
                     <LogIn className='w-4 h-4' />
                 </div>}
-            </button >
-
+            </Button >
+            <DarkToggle />
 
         </div >
     )

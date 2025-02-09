@@ -5,6 +5,8 @@ import { CldUploadWidget } from 'next-cloudinary';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { Button } from '@/components/ui/button';
+
 
 const CreateProfile = () => {
     const [name, setName] = useState("");
@@ -136,7 +138,6 @@ const CreateProfile = () => {
                         <div className="w-[200px] h-[80px] row-span-2 bg-transparent">
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -238,6 +239,10 @@ const CreateProfile = () => {
                                 ))
                             }
                         </div>
+
+                    </div>
+
+                    <div className='flex flex-col gap-4'>
                         <CldUploadWidget uploadPreset="addUsers" onSuccess={({ event, info }) => {
                             if (event === "success") {
                                 // @ts-expect-error: Let's ignore a compile error like this unreachable code
@@ -250,16 +255,12 @@ const CreateProfile = () => {
                         >
                             {({ open }) => {
                                 return (
-                                    <button onClick={() => open()}>
+                                    <Button onClick={() => open()}>
                                         Upload  Images
-                                    </button>
+                                    </Button>
                                 );
                             }}
                         </CldUploadWidget>
-                    </div>
-
-                    <div>
-
                         <button onClick={async () => {
                             await handleSubmit()
                         }} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
